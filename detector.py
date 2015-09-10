@@ -1,4 +1,6 @@
 import numpy as np
+from numpy import c_, dot, exp
+from scipy.io import loadmat
 from PIL import Image
 import StringIO
 
@@ -54,17 +56,38 @@ def detect(img):
     return sim.argmax(0)[0]
 
 
+def sigmoid(z):
+    return 1 / (1 + exp(-z))
+
+
+def nndetect(img):
+    img = img.ravel('F').reshape((1, -1))
+
+    h1 = sigmoid(dot(
+        c_[np.ones((1, 1)), img],
+        Theta1.T))
+    h2 = sigmoid(dot(
+        c_[np.ones((1, 1)), h1],
+        Theta2.T))
+    return (np.argmax(h2) + 1) % 10
+
+
 def readVerifyCode(jpgdata):
     nums = ''
     img_arr = jpeg2ndarray(jpgdata)
     if isinstance(img_arr, np.ndarray):
         img_arr = rgb2bw(img_arr)
         for spice in splitImageHorizontally(img_arr, 4):
-            nums = nums + str(detect(spice))
+            nums = nums + str(nndetect(spice))
     return nums
 
 # init number template
-number_template = []
-for i in range(10):
-    number_template.append(
-        readBMP('number_template/' + str(i) + '.bmp'))
+# number_template = []
+# for i in range(10):
+#     number_template.append(
+#         readBMP('number_template/' + str(i) + '.bmp'))
+
+# load neural network parameters
+tmp = loadmat('theta.mat')
+Theta1 = tmp['Theta1']
+Theta2 = tmp['Theta2']

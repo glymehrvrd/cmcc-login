@@ -64,48 +64,52 @@ def build_target_vector(val, length):
     vec[val - 1] = 1
     return vec
 
-f=open('output.txt','w')
-fy=open('output_y.txt','w')
-for i in xrange(250):
+# write training data to txt file
+# f=open('output.txt','w')
+# fy=open('output_y.txt','w')
+# for i in xrange(250):
+#     img_arr = jpeg2ndarray(getCapcha())
+#     if isinstance(img_arr, np.ndarray):
+#         img_arr = rgb2bw(img_arr)
+#         for spice in splitImageHorizontally(img_arr, 4):  
+#             f.write(','.join(map(str, spice.ravel('F'))))
+#             f.write('\n')
+#             fy.write(str(detect(spice))+',')
+
+
+# load existed network if possible
+if not os.path.exists('nn.pickle'):
+    nn = build_network()
+    print 'building new neural network'
+else:
+    nn = cPickle.load(open('nn.pickle'))
+    print 'using existing neural network'
+
+print 'adding samples'
+ds = SupervisedDataSet(220, 10)
+for i in xrange(200):
     img_arr = jpeg2ndarray(getCapcha())
     if isinstance(img_arr, np.ndarray):
         img_arr = rgb2bw(img_arr)
-        for spice in splitImageHorizontally(img_arr, 4):  
-            f.write(','.join(map(str, spice.ravel('F'))))
-            f.write('\n')
-            fy.write(str(detect(spice))+',')
+        for spice in splitImageHorizontally(img_arr, 4):
+            num = nndetect(spice)
+            ds.addSample(spice.ravel(), build_target_vector(num, 10))
 
+print 'start training'
+trainer = BackpropTrainer(nn, ds)
+print trainer.trainUntilConvergence(maxEpochs=500,verbose=True)
+print 'train complete'
 
-# if not os.path.exists('nn.pickle'):
-#     nn = build_network()
-#     print 'building new neural network'
-# else:
-#     nn = cPickle.load(open('nn.pickle'))
-#     print 'using existing neural network'
+# write trained network to file
+cPickle.dump(nn, open('nn.pickle', 'w'))
 
-# print 'adding samples'
-# ds = SupervisedDataSet(220, 10)
-# for i in xrange(200):
-#     img_arr = jpeg2ndarray(getCapcha())
-#     if isinstance(img_arr, np.ndarray):
-#         img_arr = rgb2bw(img_arr)
-#         for spice in splitImageHorizontally(img_arr, 4):
-#             num = detect(spice)
-#             ds.addSample(spice.ravel(), build_target_vector(num, 10))
-
-# print 'start training'
-# trainer = BackpropTrainer(nn, ds)
-# print trainer.trainUntilConvergence(maxEpochs=50)
-# print 'train complete'
-
-# # cPickle.dump(nn, open('nn.pickle', 'w'))
-
-# for i in xrange(1):
-#     img_arr = jpeg2ndarray(getCapcha())
-#     if isinstance(img_arr, np.ndarray):
-#         img_arr = rgb2bw(img_arr)
-#         for spice in splitImageHorizontally(img_arr, 4):
-#             num = detect(spice)
-#             print 'num is ', num
-#             print nn.activate(spice.ravel())
-#             print 'neural network result: ', np.argmax(nn.activate(spice.ravel()))
+# test network result
+for i in xrange(1):
+    img_arr = jpeg2ndarray(getCapcha())
+    if isinstance(img_arr, np.ndarray):
+        img_arr = rgb2bw(img_arr)
+        for spice in splitImageHorizontally(img_arr, 4):
+            num = nndetect(spice)
+            print 'num is ', num
+            print nn.activate(spice.ravel())
+            print 'neural network result: ', np.argmax(nn.activate(spice.ravel()))
