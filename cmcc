@@ -1,0 +1,243 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from PyQt4 import QtCore, QtGui
+from PIL import Image
+import requests
+import StringIO
+import sys
+import time
+from detector import *
+import os.path
+
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
+
+url_login = 'http://218.200.239.185:8888/portalserver/user/unionlogin.do?brasip=221.182.42.11&braslogoutip=221.182.42.11&area=union&wlanuserip=null&redirectUrl=example/cnunion/cnunion&domain=@chinamobile'
+url_yzm = 'http://218.200.239.185:8888/portalserver/user/randomimage'
+
+headers = {'Host': '218.200.239.185:8888',
+           'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0',
+           'Referer': 'http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp',
+           'Connection': 'keep-alive'}
+
+data = 'name=%s&pass=%s&psNum=%s'
+
+
+def load_config():
+    if not os.path.exists('config.cfg'):
+        return '', ''
+    else:
+        with open('config.cfg') as f:
+            account = f.readline().strip()
+            pwd = f.readline().strip()
+        return account, pwd
+
+
+def save_config(account, pwd):
+    with open('config.cfg', 'w') as f:
+        f.writelines([account, '\n', pwd])
+
+
+class Ui_MainWindow(QtGui.QMainWindow):
+
+    def __init__(self, parent=None):
+        super(Ui_MainWindow, self).__init__(parent)
+        self.setupUi(self)
+        # load config
+        account, pwd = load_config()
+        self.lineEdit_account.setText(account)
+        self.lineEdit_password.setText(pwd)
+        # load verify code picture
+        self.cookies = self.getCookie()
+        if not self.cookies:
+            self.label_status.setText(u'加载验证码失败')
+        else:
+            jpgdata = self.getVerifyCode(self.cookies)
+            succ = self.updatePixmapWithJPG(self.label, jpgdata)
+            if succ:
+                vfcode = readVerifyCode(jpgdata)
+                self.lineEdit.setText(vfcode)
+                self.label_status.setText(u'成功获取验证码')
+            else:
+                self.label_status.setText(u'加载验证码失败')
+
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName(_fromUtf8("MainWindow"))
+        MainWindow.resize(460, 234)
+        self.centralwidget = QtGui.QWidget(MainWindow)
+        self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
+        self.verticalLayout_2 = QtGui.QVBoxLayout(self.centralwidget)
+        self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
+        self.label = QtGui.QLabel(self.centralwidget)
+        self.label.setObjectName(_fromUtf8("label"))
+        self.verticalLayout_2.addWidget(self.label)
+        self.lineEdit_account = QtGui.QLineEdit(self.centralwidget)
+        self.lineEdit_account.setText(_fromUtf8(""))
+        self.lineEdit_account.setObjectName(_fromUtf8("lineEdit_account"))
+        self.verticalLayout_2.addWidget(self.lineEdit_account)
+        self.lineEdit_password = QtGui.QLineEdit(self.centralwidget)
+        self.lineEdit_password.setText(_fromUtf8(""))
+        self.lineEdit_password.setEchoMode(QtGui.QLineEdit.Password)
+        self.lineEdit_password.setObjectName(_fromUtf8("lineEdit_password"))
+        self.verticalLayout_2.addWidget(self.lineEdit_password)
+        self.lineEdit = QtGui.QLineEdit(self.centralwidget)
+        self.lineEdit.setObjectName(_fromUtf8("lineEdit"))
+        self.verticalLayout_2.addWidget(self.lineEdit)
+        self.pushButton = QtGui.QPushButton(self.centralwidget)
+        self.pushButton.setObjectName(_fromUtf8("pushButton"))
+        self.verticalLayout_2.addWidget(self.pushButton)
+        self.label_status = QtGui.QLabel(self.centralwidget)
+        self.label_status.setObjectName(_fromUtf8("label_status"))
+        self.verticalLayout_2.addWidget(self.label_status)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtGui.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 460, 28))
+        self.menubar.setObjectName(_fromUtf8("menubar"))
+        MainWindow.setMenuBar(self.menubar)
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(_translate("MainWindow", "CMCC", None))
+        self.label.setText(_translate("MainWindow", "TextLabel", None))
+        self.lineEdit_account.setPlaceholderText(
+            _translate("MainWindow", "account", None))
+        self.lineEdit_password.setPlaceholderText(
+            _translate("MainWindow", "password", None))
+        self.lineEdit.setPlaceholderText(
+            _translate("MainWindow", "capcha", None))
+        self.pushButton.setText(_translate("MainWindow", "登陆", None))
+        self.label_status.setText(_translate("MainWindow", "未登录", None))
+
+    def getCookie(self):
+        # get cookie
+        try:
+            requests.get(
+                'http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp', headers=headers)
+            requests.get(
+                'http://218.200.239.185:8888/portalserver/user/close.do')
+            r = requests.get(url_login, headers=headers)
+        except Exception, e:
+            QtGui.QMessageBox.warning(None, u'警告',
+                                      u"<font color='red'>加载验证码失败</font><br>" + unicode(e.message))
+        else:
+            if r.status_code != 200:
+                QtGui.QMessageBox.warning(None, u'警告',
+                                          u"<font color='red'>加载验证码失败</font><br>Status code:" + unicode(r.status_code))
+                return
+            else:
+                return r.cookies
+
+    def getVerifyCode(self, cookies):
+        # get verify code
+        try:
+            r = requests.get(url_yzm, headers=headers, cookies=cookies)
+        except Exception, e:
+            QtGui.QMessageBox.warning(None, u'警告',
+                                      u"<font color='red'>加载验证码失败</font><br>" + unicode(e.message))
+        else:
+            if r.status_code != 200:
+                QtGui.QMessageBox.warning(None, u'警告',
+                                          u"<font color='red'>加载验证码失败</font><br>Status code" + unicode(r.status_code))
+                return
+            else:
+                return r.content
+
+    def updatePixmapWithJPG(self, component, jpgdata):
+        if jpgdata:
+            pixmap = QtGui.QPixmap()
+            strio = StringIO.StringIO(jpgdata)
+            img = Image.open(strio)
+            pngdata = StringIO.StringIO()
+            # convert jpeg to png since only png is supported
+            img.save(pngdata, format='png')
+            succ = pixmap.loadFromData(QtCore.QByteArray(pngdata.getvalue()))
+            if succ:
+                component.setPixmap(pixmap)
+            return succ
+        else:
+            return False
+
+    def login(self, account, pwd, verifyCode, cookies):
+        h = headers
+        h['Content-Type'] = 'application/x-www-form-urlencoded'
+        try:
+            r = requests.post(
+                url_login, headers=h, cookies=cookies,
+                data=(data % (unicode(account),
+                              unicode(pwd),
+                              unicode(verifyCode))))
+        except Exception, e:
+            QtGui.QMessageBox.warning(None, u'警告',
+                                      u"<font color='red'>登陆失败</font><br>" + unicode(e.message))
+            return None
+        else:
+            return r
+
+    def on_pushButton_released(self):
+        self.label_status.setText(u'登陆中...')
+        r = self.login(self.lineEdit_account.text(),
+                       self.lineEdit_password.text(),
+                       self.lineEdit.text(),
+                       self.cookies)
+        save_config(
+            self.lineEdit_account.text(), self.lineEdit_password.text())
+        if r and r.status_code == 200 and r.content.count('登陆成功'):
+            self.label_status.setText(u'登陆成功')
+            self.close()
+        else:
+            self.label_status.setText(u'登陆失败')
+            jpgdata = self.getVerifyCode(self.cookies)
+            succ = self.updatePixmapWithJPG(self.label, jpgdata)
+            if not succ:
+                self.label_status.setText(u'加载验证码失败')
+            else:
+                vfcode = readVerifyCode(jpgdata)
+                self.lineEdit.setText(vfcode)
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.label_status.setText(u'获取验证码中...')
+            self.cookies = self.getCookie()
+            if not self.cookies:
+                self.label_status.setText(u'加载验证码失败')
+            else:
+                jpgdata = self.getVerifyCode(self.cookies)
+                succ = self.updatePixmapWithJPG(self.label, jpgdata)
+                if succ:
+                    vfcode = readVerifyCode(jpgdata)
+                    self.lineEdit.setText(vfcode)
+                    self.label_status.setText(u'成功获取验证码')
+                else:
+                    self.label_status.setText(u'加载验证码失败')
+
+    def on_lineEdit_returnPressed(self):
+        self.on_pushButton_released()
+
+    def on_lineEdit_account_returnPressed(self):
+        self.on_pushButton_released()
+
+    def on_lineEdit_pwd_returnPressed(self):
+        self.on_pushButton_released()
+
+
+if __name__ == '__main__':
+    app = QtGui.QApplication(sys.argv)
+
+    MainWindow = Ui_MainWindow()
+    MainWindow.show()
+    sys.exit(app.exec_())
