@@ -58,3 +58,12 @@ target/
 
 config.cfg
 nn.pickle
+
+*.iml
+.gradle
+java/local.properties
+java/.idea/workspace.xml
+java/.idea/libraries
+.DS_Store
+java/build
+java/captures
