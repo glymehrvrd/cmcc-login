@@ -67,3 +67,4 @@ java/.idea/libraries
 .DS_Store
 java/build
 java/captures
+*.apk

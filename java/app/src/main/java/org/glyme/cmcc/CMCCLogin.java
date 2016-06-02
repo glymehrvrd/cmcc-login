@@ -29,13 +29,45 @@ public class CMCCLogin {
 
     public static String getCookie() {
         try {
-            URL url = new URL(url_login);
+            URL url = new URL("http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("Host", "218.200.239.185,8888");
+            conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
-            conn.setRequestProperty("Referer", "http,//218.200.239.185,8888/portalserver/scuniondzkdqs.jsp");
+            conn.setRequestProperty("Referer", "http,//218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
+            conn.setRequestProperty("Connection", "keep-alive");
+
+            conn.setRequestMethod("GET");
+
+            conn.connect();
+
+            if (conn.getResponseCode() != 200)
+                return null;
+
+            url = new URL("http://218.200.239.185:8888/portalserver/user/close.do");
+            conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty("Host", "218.200.239.185:8888");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
+            conn.setRequestProperty("Referer", "http,//218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
+            conn.setRequestProperty("Connection", "keep-alive");
+
+            conn.setRequestMethod("GET");
+
+            conn.connect();
+
+            if (conn.getResponseCode() != 200)
+                return null;
+
+            url = new URL(url_login);
+            conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty("Host", "218.200.239.185:8888");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
+            conn.setRequestProperty("Referer", "http,//218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
 
             conn.setRequestMethod("GET");
@@ -68,9 +100,9 @@ public class CMCCLogin {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("Host", "218.200.239.185,8888");
+            conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
-            conn.setRequestProperty("Referer", "http,//218.200.239.185,8888/portalserver/scuniondzkdqs.jsp");
+            conn.setRequestProperty("Referer", "http,//218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
             conn.setRequestProperty("Cookie", cookie);
 
@@ -101,9 +133,9 @@ public class CMCCLogin {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("Host", "218.200.239.185,8888");
+            conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
-            conn.setRequestProperty("Referer", "http,//218.200.239.185,8888/portalserver/scuniondzkdqs.jsp");
+            conn.setRequestProperty("Referer", "http,//218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
             conn.setRequestProperty("Cookie", cookie);
 
@@ -112,7 +144,7 @@ public class CMCCLogin {
             conn.setDoOutput(true);
 
             OutputStream os = conn.getOutputStream();
-            os.write(String.format("name=%s&pass=%s&psNum=%s", username, password, verifyCode).getBytes("UTF-8"));
+            os.write(String.format("name=%s&pass=%s&psNum=%s", username, password, verifyCode).getBytes("Unicode"));
             os.flush();
             os.close();
 

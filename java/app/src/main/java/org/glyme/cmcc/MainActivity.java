@@ -1,6 +1,7 @@
 package org.glyme.cmcc;
 
-import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -8,16 +9,16 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView tv;
     private ImageView iv;
+    private EditText edcode;
 
     private void refreshVerifyCode() {
         executorService.execute(new Runnable() {
@@ -35,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
                 tv.post(new Runnable() {
                     @Override
                     public void run() {
-                        tv.setText("状态：获取验证码...");
+                        tv.setText("获取验证码...\n" + tv.getText());
                     }
                 });
                 cookie = CMCCLogin.getCookie();
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
                     tv.post(new Runnable() {
                         @Override
                         public void run() {
-                            tv.setText("状态：获取验证码失败！！");
+                            tv.setText("获取验证码失败！！\n" + tv.getText());
                         }
                     });
                     return;
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                     tv.post(new Runnable() {
                         @Override
                         public void run() {
-                            tv.setText("状态：获取验证码失败！！");
+                            tv.setText("获取验证码失败！！\n" + tv.getText());
                         }
                     });
                     return;
@@ -67,9 +69,12 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         Bitmap bitmap = BitmapFactory.decodeByteArray(buf.array(), 0, buf.limit());
                         iv.setImageBitmap(bitmap);
-                        tv.setText("状态：获取验证码成功！！");
+                        tv.setText("获取验证码成功！！\n" + tv.getText());
+                        String code=String.valueOf(NNDetector.detect(bitmap));
+                        edcode.setText(code);
                     }
                 });
+
             }
         });
     }
@@ -81,26 +86,35 @@ public class MainActivity extends AppCompatActivity {
                 tv.post(new Runnable() {
                     @Override
                     public void run() {
-                        tv.setText("状态：登陆中...");
+                        tv.setText("登陆中...\n" + tv.getText());
                     }
                 });
 
-                String user = ((TextView) findViewById(R.id.editText2)).getText().toString();
-                String pass = ((TextView) findViewById(R.id.editText3)).getText().toString();
-                String code = ((TextView) findViewById(R.id.editText4)).getText().toString();
+                final String user = ((TextView) findViewById(R.id.editText2)).getText().toString();
+                final String pass = ((TextView) findViewById(R.id.editText3)).getText().toString();
+                final String code = ((TextView) findViewById(R.id.editText4)).getText().toString();
 
                 if (CMCCLogin.login(user, pass, code, cookie)) {
                     tv.post(new Runnable() {
                         @Override
                         public void run() {
-                            tv.setText("状态：登陆成功！！");
+                            Snackbar.make(iv, "登陆成功", Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();
+                            tv.setText("登陆成功！！\n" + tv.getText());
+                            SharedPreferences sp = MainActivity.this.getSharedPreferences("org.glyme.cmcc.preference_key", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor ed=sp.edit();
+                            ed.putString("user",user);
+                            ed.putString("pass",pass);
+                            ed.commit();
                         }
                     });
                 } else {
                     tv.post(new Runnable() {
                         @Override
                         public void run() {
-                            tv.setText("状态：登陆失败！！");
+                            Snackbar.make(iv, "登陆失败", Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();
+                            tv.setText("登陆失败！！\n" + tv.getText());
                         }
                     });
                     refreshVerifyCode();
@@ -120,29 +134,27 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                doLogin();
             }
         });
 
         iv = (ImageView) findViewById(R.id.imageView);
-        tv = (TextView) findViewById(R.id.textView);
+        tv = (TextView) findViewById(R.id.textView2);
+        edcode = (EditText) findViewById(R.id.editText4);
+
+        SharedPreferences sp = getSharedPreferences("org.glyme.cmcc.preference_key", Context.MODE_PRIVATE);
+        ((TextView) findViewById(R.id.editText2)).setText(sp.getString("user",""));
+        ((TextView) findViewById(R.id.editText3)).setText(sp.getString("pass",""));
 
         refreshVerifyCode();
 
-        tv.setOnClickListener(new View.OnClickListener() {
+        iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 refreshVerifyCode();
             }
         });
 
-        ((Button) findViewById(R.id.button)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                doLogin();
-            }
-        });
     }
 
     @Override
