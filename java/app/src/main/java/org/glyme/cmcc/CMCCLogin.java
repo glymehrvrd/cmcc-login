@@ -35,7 +35,7 @@ public class CMCCLogin {
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
-            conn.setRequestProperty("Referer", "http,//218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
+            conn.setRequestProperty("Referer", "http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
 
             conn.setRequestMethod("GET");
@@ -51,7 +51,7 @@ public class CMCCLogin {
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
-            conn.setRequestProperty("Referer", "http,//218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
+            conn.setRequestProperty("Referer", "http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
 
             conn.setRequestMethod("GET");
@@ -67,7 +67,7 @@ public class CMCCLogin {
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
-            conn.setRequestProperty("Referer", "http,//218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
+            conn.setRequestProperty("Referer", "http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
 
             conn.setRequestMethod("GET");
@@ -102,7 +102,7 @@ public class CMCCLogin {
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
-            conn.setRequestProperty("Referer", "http,//218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
+            conn.setRequestProperty("Referer", "http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
             conn.setRequestProperty("Cookie", cookie);
 
@@ -135,7 +135,7 @@ public class CMCCLogin {
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
-            conn.setRequestProperty("Referer", "http,//218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
+            conn.setRequestProperty("Referer", "http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
             conn.setRequestProperty("Cookie", cookie);
 

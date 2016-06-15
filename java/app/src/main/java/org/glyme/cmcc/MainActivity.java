@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                         Bitmap bitmap = BitmapFactory.decodeByteArray(buf.array(), 0, buf.limit());
                         iv.setImageBitmap(bitmap);
                         tv.setText("获取验证码成功！！\n" + tv.getText());
-                        String code=String.valueOf(NNDetector.detect(bitmap));
+                        String code=String.format("%04d",NNDetector.detect(bitmap));
                         edcode.setText(code);
                     }
                 });
