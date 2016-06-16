@@ -31,57 +31,40 @@ public class CMCCLogin {
         try {
             URL url = new URL("http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
             conn.setRequestProperty("Referer", "http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
-
             conn.setRequestMethod("GET");
-
             conn.connect();
-
             if (conn.getResponseCode() != 200)
                 return null;
 
             url = new URL("http://218.200.239.185:8888/portalserver/user/close.do");
             conn = (HttpURLConnection) url.openConnection();
-
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
             conn.setRequestProperty("Referer", "http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
-
             conn.setRequestMethod("GET");
-
             conn.connect();
-
             if (conn.getResponseCode() != 200)
                 return null;
 
             url = new URL(url_login);
             conn = (HttpURLConnection) url.openConnection();
-
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
             conn.setRequestProperty("Referer", "http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
-
             conn.setRequestMethod("GET");
-
             conn.connect();
-
             if (conn.getResponseCode() != 200)
                 return null;
-
             String headerName = null;
             for (int i = 1; (headerName = conn.getHeaderFieldKey(i)) != null; i++) {
-//                System.out.println(conn.getHeaderField(i));
                 if (headerName.equals("Set-Cookie")) {
-                    return conn.getHeaderField(i);
+                    return conn.getHeaderField(i).split(";")[0];
                 }
             }
 
@@ -98,21 +81,15 @@ public class CMCCLogin {
         try {
             URL url = new URL(url_yzm);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
             conn.setRequestProperty("Referer", "http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
             conn.setRequestProperty("Cookie", cookie);
-
             conn.setRequestMethod("GET");
-
             conn.connect();
-
             if (conn.getResponseCode() != 200)
                 return null;
-
             ByteBuffer byteBuffer = ByteBuffer.allocate(2048);
             ReadableByteChannel resp_chann = Channels.newChannel(conn.getInputStream());
             resp_chann.read(byteBuffer);
@@ -131,25 +108,19 @@ public class CMCCLogin {
         try {
             URL url = new URL(url_login);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestProperty("Host", "218.200.239.185:8888");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv,33.0) Gecko/20100101 Firefox/33.0");
             conn.setRequestProperty("Referer", "http://218.200.239.185:8888/portalserver/scuniondzkdqs.jsp");
             conn.setRequestProperty("Connection", "keep-alive");
             conn.setRequestProperty("Cookie", cookie);
-
             conn.setRequestMethod("POST");
-
             conn.setDoOutput(true);
-
             OutputStream os = conn.getOutputStream();
-            os.write(String.format("name=%s&pass=%s&psNum=%s", username, password, verifyCode).getBytes("Unicode"));
+            os.write(String.format("name=%s&pass=%s&psNum=%s", username, password, verifyCode).getBytes("UTF-8"));
             os.flush();
             os.close();
-
             conn.connect();
-
             if (conn.getResponseCode() != 200)
                 return false;
 
